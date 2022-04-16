@@ -73,18 +73,18 @@ resource "aws_key_pair" "aws_key_dev" {
 }
 
 resource "aws_instance" "ec2_dev" {
-  instance_type = "t2.micro"
-  ami           = data.aws_ami.ubuntu_20_04_dev_ami.id
+  instance_type          = "t2.micro"
+  ami                    = data.aws_ami.ubuntu_20_04_dev_ami.id
+  key_name               = aws_key_pair.aws_key_dev.id
+  vpc_security_group_ids = [aws_security_group.dev_sg.id]
+  subnet_id              = aws_subnet.public_dev.id
+  user_data              = file("./userdata.tpl")
+
+  root_block_device {
+    volume_size = 10
+  }
 
   tags = {
     Name = "dev"
-  }
-
-  key_name               = aws_key_pair.aws_key_dev.id
-  vpc_security_group_ids = [aws_security_group.dev_sg.id]
-  subnet_id = aws_subnet.public_dev.id
-
-  root_block_device{
-    volume_size = 10
   }
 }
