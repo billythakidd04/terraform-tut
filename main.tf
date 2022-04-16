@@ -24,7 +24,7 @@ resource "aws_internet_gateway" "dev" {
   }
 }
 
-resource "aws_route_table" "rt-dev" {
+resource "aws_route_table" "rt_dev" {
   vpc_id = aws_vpc.dev.id
 
   tags = {
@@ -32,19 +32,19 @@ resource "aws_route_table" "rt-dev" {
   }
 }
 
-resource "aws_route" "dev-route" {
-  route_table_id         = aws_route_table.rt-dev.id
+resource "aws_route" "dev_route" {
+  route_table_id         = aws_route_table.rt_dev.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.dev.id
 }
 
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.public_dev.id
-  route_table_id = aws_route_table.rt-dev.id
+  route_table_id = aws_route_table.rt_dev.id
 }
 
-resource "aws_security_group" "dev-sg" {
-  name        = "dev-sg"
+resource "aws_security_group" "dev_sg" {
+  name        = "dev_sg"
   description = "Security group for remote dev env on vscode"
   vpc_id      = aws_vpc.dev.id
 
@@ -64,5 +64,27 @@ resource "aws_security_group" "dev-sg" {
 
   tags = {
     Name = "dev-sg"
+  }
+}
+
+resource "aws_key_pair" "aws_key_dev" {
+  key_name   = "aws_key_dev"
+  public_key = file("~/.ssh/awsdev.pub")
+}
+
+resource "aws_instance" "ec2_dev" {
+  instance_type = "t2.micro"
+  ami           = data.aws_ami.ubuntu_20_04_dev_ami.id
+
+  tags = {
+    Name = "dev"
+  }
+
+  key_name               = aws_key_pair.aws_key_dev.id
+  vpc_security_group_ids = [aws_security_group.dev_sg.id]
+  subnet_id = aws_subnet.public_dev.id
+
+  root_block_device{
+    volume_size = 10
   }
 }
