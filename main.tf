@@ -87,4 +87,13 @@ resource "aws_instance" "ec2_dev" {
   tags = {
     Name = "dev"
   }
+
+  provisioner "local-exec" {
+    command = templatefile("nix-ssh-config.tpl", {
+      hostname     = self.public_ip,
+      user         = "ubuntu",
+      identityfile = "~/.ssh/awsdev"
+    })
+    interpreter  = ["bash", "-c"]
+  }
 }
