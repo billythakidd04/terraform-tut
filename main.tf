@@ -94,6 +94,6 @@ resource "aws_instance" "ec2_dev" {
       user         = "ubuntu",
       identityfile = "~/.ssh/awsdev"
     })
-    interpreter  = ["Powershell", "-Command"]
+    interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
   }
 }
