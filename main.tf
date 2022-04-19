@@ -89,11 +89,11 @@ resource "aws_instance" "ec2_dev" {
   }
 
   provisioner "local-exec" {
-    command = templatefile("nix-ssh-config.tpl", {
+    command = templatefile("${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ubuntu",
       identityfile = "~/.ssh/awsdev"
     })
-    interpreter  = ["bash", "-c"]
+    interpreter  = ["Powershell", "-Command"]
   }
 }
